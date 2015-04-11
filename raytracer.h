@@ -17,6 +17,10 @@ public:
     void initRender();
     void render(QImage &myimage, int width, int height);
     ~RayTracer();
+
+protected:
+    float m_leftX, m_rightX, m_topY, m_bottomY, m_dX, m_dY, m_targetX, m_targetY;
+    int m_Width, m_Height;
 };
 
 #endif

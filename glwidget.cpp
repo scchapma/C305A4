@@ -11,9 +11,7 @@
 #include <iostream>
 
 #include "glwidget.h"
-//#include "common.h"
 //#include "scene.h"
-//#include "surface.h"
 #include "shape.h"
 #include "sphere.h"
 #include "triangle.h"
@@ -122,10 +120,12 @@ void GLWidget::saveImage( QString fileBuf )
 
 void GLWidget::makeImage( )
 {   
-    QImage myimage(renderWidth, renderHeight, QImage::Format_RGB32);
+    //QImage myimage(renderWidth, renderHeight, QImage::Format_RGB32);
+    QImage myimage(1200, 900, QImage::Format_RGB32);
     RayTracer raytracer = RayTracer();
 
-    raytracer.render(myimage, renderWidth, renderHeight);
+    //raytracer.render(myimage, renderWidth, renderHeight);
+    raytracer.render(myimage, 1200, 900);
     qtimage=myimage.copy(0, 0,  myimage.width(), myimage.height());
     prepareImageDisplay(&myimage);
 }
