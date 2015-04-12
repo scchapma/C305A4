@@ -124,6 +124,7 @@ void GLWidget::makeImage( )
     QImage myimage(1200, 900, QImage::Format_RGB32);
     RayTracer raytracer = RayTracer();
 
+    raytracer.initRender();
     //raytracer.render(myimage, renderWidth, renderHeight);
     raytracer.render(myimage, 1200, 900);
     qtimage=myimage.copy(0, 0,  myimage.width(), myimage.height());
