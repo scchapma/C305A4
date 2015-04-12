@@ -12,9 +12,9 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, HitRecord &record) const
     QVector3D temp = r.origin() - center;
 
     //TODO:  This is stupid - must be better way to call static function than using "temp" here
-    double a = temp.dotProduct( r.direction(), r.direction());
-    double b = 2*temp.dotProduct(r.direction(), temp);
-    double c = temp.dotProduct(temp, temp) - radius*radius;
+    double a = QVector3D::dotProduct( r.direction(), r.direction());
+    double b = 2*QVector3D::dotProduct(r.direction(), temp);
+    double c = QVector3D::dotProduct(temp, temp) - radius*radius;
 
     double discriminant = b*b - 4*a*c;
 

@@ -117,15 +117,17 @@ bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shape
     tmax = 100000.0f;
     is_a_hit = false;
 
-    QVector3D origin (0, 0, 100);
+    /*
+    QVector3D origin (0, 0, 5);
     QVector3D dir(QVector3D(i, j, 0) - origin);
     dir.normalized();
+    */
 
-    /*
+
     //orthographic
     QVector3D origin (i, j, 0);
     QVector3D dir(0,0,-1);
-    */
+
 
     //cout << "samples[c].x: " << i + samples[c].x() - 0.5 << endl;
     //cout << "samples[c].y: " << j + samples[c].y() - 0.5 << endl;
@@ -166,7 +168,8 @@ void RayTracer::initRender()
     m_Height = 900;
 
     //set up image plane - 8 wide by 6 high
-    m_leftX = -4, m_rightX = 4, m_topY = 3, m_bottomY = -3;
+    //m_leftX = -4, m_rightX = 4, m_topY = 3, m_bottomY = -3;
+    m_leftX = -600, m_rightX = 600, m_topY = 450, m_bottomY = -450;
     //calculate deltas
     m_dX = (m_rightX - m_leftX)/m_Width;
     //std::cout << "dX: " << m_dX << endl;
@@ -183,35 +186,24 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     QVector3D incidentLightRay;
     QVector3D surfaceNormal;
 
+    int counter = 0;
+
     //geometry
     std::vector<Shape*> shapes;
     std::vector<Light*> lights;
 
     //init shapes
-    shapes.push_back(new Sphere (QVector3D(0, 0, -5), 2.0, QVector3D(255, 0, 0)));
-    shapes.push_back(new Sphere (QVector3D(0, 0, -3), 1.0, QVector3D(255, 215, 0)));
+    shapes.push_back(new Sphere (QVector3D(0, 0, -3), 100, QVector3D(255, 0, 0)));
+    //shapes.push_back(new Sphere (QVector3D(-1, -1, -3), 100, QVector3D(255, 215, 0)));
     //shapes.push_back(new Sphere (QVector3D(675, 400, -225), 150, QVector3D(255, 0, 0)));
     //shapes.push_back(new Sphere (QVector3D(350, 400, -200), 150, QVector3D(255, 215, 0)));
     //shapes.push_back(new Sphere (QVector3D(100, 100, -1000), 50, QVector3D(0, 0, 255)));
     //shapes.push_back(new Sphere (QVector3D(600, 400, -300), 150, QVector3D(139, 0, 139)));
 
-    //shapes.push_back(new Plane (QVector3D(0, 1, 0), 0, QVector3D(255,0,0)));
+    //shapes.push_back(new Plane (QVector3D(0, 1, 0), 0, QVector3D(0,0,255)));
 
     //init lights
     lights.push_back(new Light(QVector3D(150,150,300), QVector3D(255,255,255), 1.0));
-
-    QVector3D lightPosition (150, 150, 300);
-    //QVector3D lightPosition (0, -150, 300);
-    //QVector3D lightPosition (50, 0, 300);
-    //QVector3D lightPosition (2000, 450, -100);
-
-    float diffuseFactor;
-    float ambientCoefficient = 1.0;
-    float diffuseCoefficient = 0.9;
-    float specularCoefficient = 0.9;
-    int specPower = 50;
-
-    float tmax = 100000.0f;
 
     for (int j = 0; j < renderHeight; j++)
     {
@@ -223,18 +215,20 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
             //std::cout << "targetY: " << m_targetY << endl;
             if (rayTrace(rec, m_targetX, m_targetY, shapes))
             {
-                //myimage.setPixel(i, j, qRgb(160,160,160));
-                myimage.setPixel(i, renderHeight -1 - j, qRgb(rec.color.x(), rec.color.y(), rec.color.z()));
+                myimage.setPixel(i, j, qRgb(rec.color.x(), rec.color.y(), rec.color.z()));
+                //myimage.setPixel(i, renderHeight -1 - j, qRgb(rec.color.x(), rec.color.y(), rec.color.z()));
             }
             else
             {
-                //myimage.setPixel(i, j, qRgb(160,160,160));
-                myimage.setPixel(i, renderHeight- 1 - j, qRgb(160,160,160));
+                myimage.setPixel(i, j, qRgb(160,160,160));
+                //myimage.setPixel(i, renderHeight- 1 - j, qRgb(160,160,160));
             }
             m_targetX += m_dX;
+            counter++;
         }
         m_targetY -= m_dY;
     }
+    std::cout << "Counter: " << counter << endl;
 }
 
 /*
