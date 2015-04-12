@@ -112,6 +112,7 @@ bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shape
 {
     bool is_a_hit;
     float tmax;
+    Shape* closestShape;
 
     tmax = 100000.0f;
     is_a_hit = false;
@@ -137,19 +138,27 @@ bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shape
         {
             //tmax = rec.t;
             is_a_hit = true;
+            closestShape = shapes[k];
             rec.clamp();
         }
     }
 
+    if (!is_a_hit) return false;
+
     //trace lights
+    for(int l = 0; l < (int)lights.size(); l++){
+        Light* light = lights[l];
+        QVector3D lightRay = (light->position - rec.intersectionPoint).normalized();
+        double lightRayLength = lightRay.length();
+
+        //calculate shadows
+
+
+    }
     QVector3D incidentLightRay;
     QVector3D surfaceNormal;
 
-    float diffuseFactor;
-    float ambientCoefficient = 1.0;
-    float diffuseCoefficient = 0.9;
-    float specularCoefficient = 0.9;
-    int specPower = 50;
+
 
 
     return is_a_hit;
@@ -202,25 +211,31 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     //init shapes
     Sphere *sphere1 = new Sphere (QVector3D(0, 0, -100), 100, QVector3D(255, 0, 0));
     //sphere1.GetMaterial()->SetDiffuse(1.0f);
-    sphere1->GetMaterial()->SetReflection(0.2f);
+    sphere1->GetMaterial()->SetReflection(0.9f);
     sphere1->GetMaterial()->SetRefraction(0.8f);
     sphere1->GetMaterial()->SetRefrIndex(1.3f);
 
     Sphere *sphere2 = new Sphere (QVector3D(-90, 0, -200), 100, QVector3D(255, 215, 0));
-    sphere2->GetMaterial()->SetReflection(0.5f);
+    sphere2->GetMaterial()->SetReflection(0.9f);
     sphere2->GetMaterial()->SetRefraction(0.0f);
     sphere2->GetMaterial()->SetRefrIndex(1.3f);
     sphere2->GetMaterial()->SetDiffuse(0.1f);
 
+    Plane *plane1 = new Plane (QVector3D(0, -1, 0), -100, QVector3D(0.4*256,0.3*256,0.3*256));
+    plane1->GetMaterial()->SetReflection(0.9f);
+    plane1->GetMaterial()->SetRefraction(0.0f);
+    plane1->GetMaterial()->SetRefrIndex(1.3f);
+    plane1->GetMaterial()->SetDiffuse(1.0f);
 
     shapes.push_back(sphere1);
     shapes.push_back(sphere2);
+    shapes.push_back(plane1);
     //shapes.push_back(new Sphere (QVector3D(675, 400, -225), 150, QVector3D(255, 0, 0)));
     //shapes.push_back(new Sphere (QVector3D(350, 400, -200), 150, QVector3D(255, 215, 0)));
     //shapes.push_back(new Sphere (QVector3D(100, 100, -1000), 50, QVector3D(0, 0, 255)));
     //shapes.push_back(new Sphere (QVector3D(600, 400, -300), 150, QVector3D(139, 0, 139)));
 
-    shapes.push_back(new Plane (QVector3D(0, -1, 0), -100, QVector3D(0.4*256,0.3*256,0.3*256)));
+    //shapes.push_back(new Plane (QVector3D(0, -1, 0), -100, QVector3D(0.4*256,0.3*256,0.3*256)));
     //shapes.push_back(new Plane (QVector3D(0, 0, -1), -110, QVector3D(0,0,255)));
 
     //init lights
