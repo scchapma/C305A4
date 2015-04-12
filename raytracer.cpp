@@ -152,10 +152,6 @@ bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shape
     int specPower = 50;
 
 
-
-
-
-
     return is_a_hit;
 }
 
@@ -204,8 +200,21 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     std::vector<Light*> lights;
 
     //init shapes
-    shapes.push_back(new Sphere (QVector3D(0, 0, -100), 100, QVector3D(255, 0, 0)));
-    shapes.push_back(new Sphere (QVector3D(-90, 0, -200), 100, QVector3D(255, 215, 0)));
+    Sphere *sphere1 = new Sphere (QVector3D(0, 0, -100), 100, QVector3D(255, 0, 0));
+    //sphere1.GetMaterial()->SetDiffuse(1.0f);
+    sphere1->GetMaterial()->SetReflection(0.2f);
+    sphere1->GetMaterial()->SetRefraction(0.8f);
+    sphere1->GetMaterial()->SetRefrIndex(1.3f);
+
+    Sphere *sphere2 = new Sphere (QVector3D(-90, 0, -200), 100, QVector3D(255, 215, 0));
+    sphere2->GetMaterial()->SetReflection(0.5f);
+    sphere2->GetMaterial()->SetRefraction(0.0f);
+    sphere2->GetMaterial()->SetRefrIndex(1.3f);
+    sphere2->GetMaterial()->SetDiffuse(0.1f);
+
+
+    shapes.push_back(sphere1);
+    shapes.push_back(sphere2);
     //shapes.push_back(new Sphere (QVector3D(675, 400, -225), 150, QVector3D(255, 0, 0)));
     //shapes.push_back(new Sphere (QVector3D(350, 400, -200), 150, QVector3D(255, 215, 0)));
     //shapes.push_back(new Sphere (QVector3D(100, 100, -1000), 50, QVector3D(0, 0, 255)));
