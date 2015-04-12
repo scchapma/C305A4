@@ -117,14 +117,15 @@ bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shape
     tmax = 100000.0f;
     is_a_hit = false;
 
-    /*
-    QVector3D origin (0, 0, 15);
+    QVector3D origin (0, 0, 100);
     QVector3D dir(QVector3D(i, j, 0) - origin);
     dir.normalized();
-    */
 
+    /*
+    //orthographic
     QVector3D origin (i, j, 0);
     QVector3D dir(0,0,-1);
+    */
 
     //cout << "samples[c].x: " << i + samples[c].x() - 0.5 << endl;
     //cout << "samples[c].y: " << j + samples[c].y() - 0.5 << endl;
