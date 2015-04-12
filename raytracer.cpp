@@ -108,7 +108,7 @@ bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shape
 }
 */
 
-bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shapes)
+bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shapes, std::vector<Light*> lights)
 {
     bool is_a_hit;
     float tmax;
@@ -130,6 +130,7 @@ bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shape
     //cout << "samples[c].y: " << j + samples[c].y() - 0.5 << endl;
     Ray r(origin, dir);
 
+    //find closest intersection
     for (int k = 0; k < (int)shapes.size(); k++)
     {
         if (shapes[k]->hit(r, .00001f, tmax, rec))
@@ -139,6 +140,21 @@ bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shape
             rec.clamp();
         }
     }
+
+    //trace lights
+    QVector3D incidentLightRay;
+    QVector3D surfaceNormal;
+
+    float diffuseFactor;
+    float ambientCoefficient = 1.0;
+    float diffuseCoefficient = 0.9;
+    float specularCoefficient = 0.9;
+    int specPower = 50;
+
+
+
+
+
 
     return is_a_hit;
 }
@@ -201,6 +217,7 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     //init lights
     lights.push_back(new Light(QVector3D(150,150,300), QVector3D(255,255,255), 1.0));
 
+    /*
     float diffuseFactor;
     float ambientCoefficient = 1.0;
     float diffuseCoefficient = 0.9;
@@ -208,13 +225,14 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     int specPower = 50;
 
     float tmax = 100000.0f;
+    */
 
     for (int j = 0; j < renderHeight; j++)
     {
         m_targetX = m_leftX;
         for (int i = 0; i < renderWidth; i++)
         {
-            if (rayTrace(rec, m_targetX, m_targetY, shapes))
+            if (rayTrace(rec, m_targetX, m_targetY, shapes, lights))
             {
                 myimage.setPixel(i, j, qRgb(rec.color.x(), rec.color.y(), rec.color.z()));
                 //myimage.setPixel(i, renderHeight -1 - j, qRgb(rec.color.x(), rec.color.y(), rec.color.z()));
