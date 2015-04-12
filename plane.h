@@ -10,7 +10,7 @@ class Plane : public Shape
 public:
     Plane(const QVector3D& _normal, float _d, const QVector3D& _color);
     //BBox boundingBox() const;
-    bool hit(const Ray &r, float tmin, float tmax, HitRecord &record) const;
+    bool hit(const Ray &r, float tmin, float &tmax, HitRecord &record) const;
     bool shadowHit(const Ray &r, float tmin, float tmax, float time) const;
 
     QVector3D normal;

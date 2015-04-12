@@ -10,7 +10,7 @@ class Triangle : public Shape
 {
 public:
     Triangle(const QVector3D& _p0, const QVector3D& _p1, const QVector3D& _p2, const QVector3D& _color);
-    bool hit(const Ray &r, float tmin, float tmax, HitRecord &record) const;
+    bool hit(const Ray &r, float tmin, float &tmax, HitRecord &record) const;
     bool shadowHit(const Ray &r, float tmin, float tmax, float time) const;
 
     QVector3D p0;

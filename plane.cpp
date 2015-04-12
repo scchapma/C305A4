@@ -7,7 +7,7 @@
 Plane::Plane(const QVector3D &_normal, float _d, const QVector3D &_color)
     :normal(_normal), d(_d), color(_color) {}
 
-bool Plane::hit(const Ray &r, float tmin, float tmax, HitRecord &record) const
+bool Plane::hit(const Ray &r, float tmin, float &tmax, HitRecord &record) const
 {
     float n = this->normal.dotProduct(this->normal, r.direction());
     if (n != 0)

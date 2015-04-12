@@ -7,7 +7,7 @@
 Triangle::Triangle(const QVector3D& _p0, const QVector3D& _p1, const QVector3D& _p2, const QVector3D& _color)
     : p0(_p0), p1(_p1), p2(_p2), color(_color){}
 
-bool Triangle::hit(const Ray &r, float tmin, float tmax, HitRecord &record) const
+bool Triangle::hit(const Ray &r, float tmin, float &tmax, HitRecord &record) const
 {
     float tval;
     float A = p0.x() - p1.x();
@@ -46,6 +46,7 @@ bool Triangle::hit(const Ray &r, float tmin, float tmax, HitRecord &record) cons
     tval = -(F*AKJB + E*JCAL + D*BLKC)/denom;
     if (tval >= tmin && tval <= tmax)
     {
+        tmax = tval;
         record.t = tval;
         record.normal = p0.crossProduct((p1-p0),(p2-p0)).normalized();
         record.color = color;

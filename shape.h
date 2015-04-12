@@ -24,7 +24,7 @@ class Shape
 public:
     Shape();
     ~Shape();
-    virtual bool hit(const Ray& r, float tmin, float tmax, HitRecord& record) const = 0;
+    virtual bool hit(const Ray& r, float tmin, float& tmax, HitRecord& record) const = 0;
     virtual bool shadowHit(const Ray& r, float tmin, float tmax, float time) const = 0;    
 };
 

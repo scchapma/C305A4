@@ -112,22 +112,19 @@ bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shape
 {
     bool is_a_hit;
     float tmax;
-    //QVector3D dir (0, 0, -1);
 
     tmax = 100000.0f;
     is_a_hit = false;
 
-    /*
-    QVector3D origin (0, 0, 5);
+    QVector3D origin (0, 0, 500);
     QVector3D dir(QVector3D(i, j, 0) - origin);
     dir.normalized();
-    */
 
-
+    /*
     //orthographic
     QVector3D origin (i, j, 0);
     QVector3D dir(0,0,-1);
-
+    */
 
     //cout << "samples[c].x: " << i + samples[c].x() - 0.5 << endl;
     //cout << "samples[c].y: " << j + samples[c].y() - 0.5 << endl;
@@ -137,7 +134,7 @@ bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shape
     {
         if (shapes[k]->hit(r, .00001f, tmax, rec))
         {
-            tmax = rec.t;
+            //tmax = rec.t;
             is_a_hit = true;
             rec.clamp();
         }
@@ -193,14 +190,15 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     std::vector<Light*> lights;
 
     //init shapes
-    shapes.push_back(new Sphere (QVector3D(0, 0, -3), 100, QVector3D(255, 0, 0)));
-    //shapes.push_back(new Sphere (QVector3D(-1, -1, -3), 100, QVector3D(255, 215, 0)));
+    shapes.push_back(new Sphere (QVector3D(0, 0, -100), 100, QVector3D(255, 0, 0)));
+    shapes.push_back(new Sphere (QVector3D(-90, 0, -200), 100, QVector3D(255, 215, 0)));
     //shapes.push_back(new Sphere (QVector3D(675, 400, -225), 150, QVector3D(255, 0, 0)));
     //shapes.push_back(new Sphere (QVector3D(350, 400, -200), 150, QVector3D(255, 215, 0)));
     //shapes.push_back(new Sphere (QVector3D(100, 100, -1000), 50, QVector3D(0, 0, 255)));
     //shapes.push_back(new Sphere (QVector3D(600, 400, -300), 150, QVector3D(139, 0, 139)));
 
-    //shapes.push_back(new Plane (QVector3D(0, 1, 0), 0, QVector3D(0,0,255)));
+    shapes.push_back(new Plane (QVector3D(0, -1, 0), -100, QVector3D(0.4*256,0.3*256,0.3*256)));
+    //shapes.push_back(new Plane (QVector3D(0, 0, -1), -110, QVector3D(0,0,255)));
 
     //init lights
     lights.push_back(new Light(QVector3D(150,150,300), QVector3D(255,255,255), 1.0));

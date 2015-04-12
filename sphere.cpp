@@ -7,11 +7,10 @@
 Sphere::Sphere(const QVector3D &_center, float _radius, const QVector3D &_color)
     :center(_center), radius(_radius), color(_color) {}
 
-bool Sphere::hit(const Ray &r, float tmin, float tmax, HitRecord &record) const
+bool Sphere::hit(const Ray &r, float tmin, float &tmax, HitRecord &record) const
 {
     QVector3D temp = r.origin() - center;
 
-    //TODO:  This is stupid - must be better way to call static function than using "temp" here
     double a = QVector3D::dotProduct( r.direction(), r.direction());
     double b = 2*QVector3D::dotProduct(r.direction(), temp);
     double c = QVector3D::dotProduct(temp, temp) - radius*radius;
@@ -31,6 +30,9 @@ bool Sphere::hit(const Ray &r, float tmin, float tmax, HitRecord &record) const
             return false;
 
         // we have a valid hit
+        if(t<tmax){
+            tmax = t;
+        }
         record.t = t;
         QVector3D intersectionPoint = r.origin() + t*r.direction();
         record.intersectionPoint = intersectionPoint.normalized();
