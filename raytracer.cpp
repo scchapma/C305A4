@@ -158,6 +158,8 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
 
         /*****calculate shadows*****/
         double shade = 1;
+
+        /*
         //NB - not normalized
         QVector3D shadowDir = (light->position - rec.intersectionPoint);
         float tdist = shadowDir.length();
@@ -172,6 +174,7 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
                 break;
             }
         }
+        */
 
         /*****diffuse shading*****/
         if(closestShape->GetMaterial()->GetDiffuse() > 0.0f)
@@ -187,11 +190,27 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
         /*****specular shading******/
         if(closestShape->GetMaterial()->GetSpecular() > 0.0f)
         {
-
+            QVector3D V = r.direction();
+            QVector3D R = lightRay - 2*QVector3D::dotProduct(lightRay, rec.normal)*rec.normal;
+            float dotVR = QVector3D::dotProduct(V,R);
+            if(dotVR > 0)
+            {
+                float spec = powf(dotVR, 20)*closestShape->GetMaterial()->GetSpecular()*shade;
+                color += spec*light->color;
+            }
         }
-    }
+    }    
 
-    color = rec.color;
+    //clamp
+    if(color.x() < 0) color.setX(0);
+    if(color.y() < 0) color.setY(0);
+    if(color.z() < 0) color.setZ(0);
+    if(color.x() > 255) color.setX(255);
+    if(color.y() > 255) color.setY(255);
+    if(color.z() > 255) color.setZ(255);
+
+    //color = rec.color;
+
     return color;
 }
 
@@ -241,22 +260,26 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
 
     //init shapes
     Sphere *sphere1 = new Sphere (QVector3D(0, 0, -100), 100, QVector3D(255, 0, 0));
-    //sphere1.GetMaterial()->SetDiffuse(1.0f);
+    sphere1->GetMaterial()->SetDiffuse(1.0f);
     sphere1->GetMaterial()->SetReflection(0.9f);
     sphere1->GetMaterial()->SetRefraction(0.8f);
     sphere1->GetMaterial()->SetRefrIndex(1.3f);
+    sphere1->GetMaterial()->SetSpecular(0.5f);
 
     Sphere *sphere2 = new Sphere (QVector3D(-90, 0, -200), 100, QVector3D(255, 215, 0));
     sphere2->GetMaterial()->SetReflection(0.9f);
     sphere2->GetMaterial()->SetRefraction(0.0f);
     sphere2->GetMaterial()->SetRefrIndex(1.3f);
-    sphere2->GetMaterial()->SetDiffuse(0.1f);
+    sphere2->GetMaterial()->SetDiffuse(0.5f);
+    sphere2->GetMaterial()->SetSpecular(0.5f);
 
-    Plane *plane1 = new Plane (QVector3D(0, -1, 0), -100, QVector3D(0.4*256,0.3*256,0.3*256));
+    Plane *plane1 = new Plane (QVector3D(0, 1, 0), 100, QVector3D(0.4*256,0.3*256,0.3*256));
     plane1->GetMaterial()->SetReflection(0.9f);
     plane1->GetMaterial()->SetRefraction(0.0f);
     plane1->GetMaterial()->SetRefrIndex(1.3f);
     plane1->GetMaterial()->SetDiffuse(1.0f);
+    plane1->GetMaterial()->SetSpecular(1.0f);
+
 
     shapes.push_back(sphere1);
     shapes.push_back(sphere2);
@@ -270,7 +293,7 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     //shapes.push_back(new Plane (QVector3D(0, 0, -1), -110, QVector3D(0,0,255)));
 
     //init lights
-    lights.push_back(new Light(QVector3D(0,150,10), QVector3D(1.0, 1.0, 1.0), 1.0));
+    lights.push_back(new Light(QVector3D(200,200,10), QVector3D(1.0, 1.0, 1.0), 1.0));
 
     for (int j = 0; j < renderHeight; j++)
     {
