@@ -15,7 +15,7 @@ public:
     //Camera initCamera();
     QVector3D rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shapes, std::vector<Light*> lights);
     void jitter(QVector2D* samples, int sampleSize);
-    void initRender();
+    void initRender(int renderWidth, int renderHeight);
     void render(QImage &myimage, int width, int height);
     ~RayTracer();
 

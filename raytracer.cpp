@@ -8,7 +8,7 @@
 #include "light.h"
 //#include "camera.h"
 
-const unsigned short int sampleSize = 3;
+const unsigned short int sampleSize = 1;
 
 const QVector3D c (0, 0, 0);
 const QVector3D gaze (0, 0, 0);
@@ -216,14 +216,14 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
         }
         */
 
-        /*
+
         //diffuse shading
         if(closestShape->GetMaterial()->GetDiffuse() > 0.0f)
         {
 
             float dotLN = fabs(QVector3D::dotProduct(incidentLightRay, surfaceNormal));
             if(dotLN >= 0){
-                rec.color = dotLN*(closestShape->GetMaterial()->GetDiffuse())*shade*rec.color;
+                rec.color = dotLN*(closestShape->GetMaterial()->GetDiffuse())*shade*rec.color*lights[l]->intensity;
                 rec.clamp();
             }
         }
@@ -242,12 +242,12 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
 
         mySpec = powf(mySpec, specPower);
 
-        QVector3D specularColor (255, 255, 0);
-        specularColor = (mySpec*specularCoefficient) * specularColor;
+        QVector3D specularColor (255, 255, 255);
+        specularColor = (mySpec*specularCoefficient) * specularColor*lights[l]->intensity;
 
         //add diffuse and specular components
         rec.color += specularColor;
-        */
+
 
         /*
         //specular shading
@@ -303,7 +303,7 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
             if (dotLN > 0)
             {
                 float diff = dotLN*closestShape->GetMaterial()->GetDiffuse()*shade;
-                color = diff*rec.color;//*light->color;
+                color = diff*rec.color*light->color;
             }
         }
 
@@ -350,19 +350,20 @@ void RayTracer::jitter(QVector2D* samples, int sampleSize)
 
 }
 
-void RayTracer::initRender()
+void RayTracer::initRender(int renderWidth, int renderHeight)
 {
     //TODO: Hardcoded - fix later
-    m_Width = 1200;
-    m_Height = 900;
+    //m_Width = 1200;
+    //m_Height = 900;
 
     //set up image plane - 8 wide by 6 high
     //m_leftX = -4, m_rightX = 4, m_topY = 3, m_bottomY = -3;
-    m_leftX = -600, m_rightX = 600, m_topY = 450, m_bottomY = -450;
+    //m_leftX = -600, m_rightX = 600, m_topY = 450, m_bottomY = -450;
+    m_leftX = -300, m_rightX = 300, m_topY = 225, m_bottomY = -225;
     //calculate deltas
-    m_dX = (m_rightX - m_leftX)/m_Width;
+    m_dX = (m_rightX - m_leftX)/renderWidth;
     //std::cout << "dX: " << m_dX << endl;
-    m_dY = (m_topY - m_bottomY)/m_Height;
+    m_dY = (m_topY - m_bottomY)/renderHeight;
     //std::cout << "dY: " << m_dY << endl;
     //start at top left corner
     m_targetY = m_topY;
@@ -372,22 +373,20 @@ void RayTracer::initRender()
 void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
 {
     HitRecord rec;
-    QVector3D incidentLightRay;
-    QVector3D surfaceNormal;
 
     //geometry
     std::vector<Shape*> shapes;
     std::vector<Light*> lights;
 
     //init shapes
-    Sphere *sphere1 = new Sphere (QVector3D(0, 0, -200), 200, QVector3D(255, 0, 0));
+    Sphere *sphere1 = new Sphere (QVector3D(0, 0, -200), 100, QVector3D(255, 0, 0));
     sphere1->GetMaterial()->SetDiffuse(0.9f);
     sphere1->GetMaterial()->SetReflection(0.9f);
     sphere1->GetMaterial()->SetRefraction(0.8f);
     sphere1->GetMaterial()->SetRefrIndex(1.3f);
     sphere1->GetMaterial()->SetSpecular(0.9f);
 
-    Sphere *sphere2 = new Sphere (QVector3D(-400, 0, -250), 200, QVector3D(255, 215, 0));
+    Sphere *sphere2 = new Sphere (QVector3D(200, 0, -250), 100, QVector3D(255, 215, 0));
     sphere2->GetMaterial()->SetReflection(0.9f);
     sphere2->GetMaterial()->SetRefraction(0.0f);
     sphere2->GetMaterial()->SetRefrIndex(1.3f);
@@ -407,7 +406,7 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
 
     //init lights
     lights.push_back(new Light(QVector3D(-150, 300, 100), QVector3D(1.0, 1.0, 1.0), 1.0));
-    //lights.push_back(new Light(QVector3D(100, 100, 300), QVector3D(1.0, 1.0, 1.0), 1.0));
+    //lights.push_back(new Light(QVector3D(100, 100, 300), QVector3D(1.0, 1.0, 1.0), 1.5));
 
     for (int j = 0; j < renderHeight; j++)
     {
