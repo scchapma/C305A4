@@ -8,7 +8,7 @@
 #include "light.h"
 //#include "camera.h"
 
-const unsigned short int sampleSize = 1;
+const unsigned short int sampleSize = 3;
 
 const QVector3D c (0, 0, 0);
 const QVector3D gaze (0, 0, 0);
@@ -119,33 +119,67 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
     tmax = 100000.0f;
     is_a_hit = false;
 
-    QVector3D color (0, 0, 0);
+    //QVector3D color (0, 0, 0);
     QVector3D backgroundColor (80, 80, 80);
 
     QVector3D origin (0, 0, 500);
     QVector3D dir(QVector3D(i, j, 0) - origin);
     dir.normalized();
 
-    /*
-    //orthographic
-    QVector3D origin (i, j, 0);
-    QVector3D dir(0,0,-1);
-    */
+    //initialize sampling values
+    float t = 0;
+    QVector3D normal (0, 0, 0);
+    QVector3D intersectionPoint (0, 0, 0);
+    QVector3D color (0, 0, 0);
+    bool sample_hit;
+
+    //add sampling
+    QVector2D samples[sampleSize*sampleSize];
+    jitter(samples, sampleSize);
 
     //cout << "samples[c].x: " << i + samples[c].x() - 0.5 << endl;
     //cout << "samples[c].y: " << j + samples[c].y() - 0.5 << endl;
     Ray r(origin, dir);
 
-    //find closest intersection
-    for (int k = 0; k < (int)shapes.size(); k++)
-    {
-        if (shapes[k]->hit(r, .00001f, tmax, rec))
+    for(int c = 0; c < sampleSize*sampleSize; c++){
+        sample_hit = false;
+        tmax = 100000.0f;
+        //QVector3D origin(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0);
+        QVector3D dir(QVector3D(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0) - origin);
+        dir.normalized();
+        //cout << "samples[c].x: " << i + samples[c].x() - 0.5 << endl;
+        //cout << "samples[c].y: " << j + samples[c].y() - 0.5 << endl;
+        Ray r(origin, dir);
+        //Ray r = camera.getRay(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0);
+        //Ray r = camera.getRay(i, j, 0);
+        //cout << "r.dir.x: " << r.direction().x() << endl;
+        //cout << "r.dir.y: " << r.direction().x() << endl;
+        //cout << "r.dir.z: " << r.direction().x() << endl;
+
+        //find closest intersection
+        for (int k = 0; k < (int)shapes.size(); k++)
         {
-            //tmax = rec.t;
-            is_a_hit = true;
-            closestShape = shapes[k];
-            rec.clamp();
+            if (shapes[k]->hit(r, .00001f, tmax, rec))
+            {
+                //tmax = rec.t;
+                is_a_hit = true;
+                closestShape = shapes[k];
+                rec.clamp();
+                sample_hit = true;
+            }
         }
+        t += rec.t;
+        normal += rec.normal;
+        intersectionPoint += rec.intersectionPoint;
+        if(sample_hit) color += rec.color;
+        else color += backgroundColor;
+
+        rec.t = t/(sampleSize*sampleSize);
+        rec.normal = normal/(sampleSize*sampleSize);
+        rec.intersectionPoint = intersectionPoint/(sampleSize*sampleSize);
+        rec.color = color/(sampleSize*sampleSize);
+        rec.clamp();
+        rec.normal = rec.normal.normalized();
     }
 
     if (!is_a_hit) return backgroundColor;
@@ -165,7 +199,7 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
         //calculate shadows
         float shade = 1.0f;
 
-
+        /*
         //NB - not normalized
         QVector3D shadowDir = (lights[l]->position - rec.intersectionPoint);
         float tdist = shadowDir.length();
@@ -180,8 +214,9 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
                 break;
             }
         }
+        */
 
-
+        /*
         //diffuse shading
         if(closestShape->GetMaterial()->GetDiffuse() > 0.0f)
         {
@@ -212,6 +247,7 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
 
         //add diffuse and specular components
         rec.color += specularColor;
+        */
 
         /*
         //specular shading
@@ -365,17 +401,9 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     plane1->GetMaterial()->SetDiffuse(0.9f);
     plane1->GetMaterial()->SetSpecular(0.9f);
 
-
     shapes.push_back(sphere1);
     shapes.push_back(sphere2);
     shapes.push_back(plane1);
-    //shapes.push_back(new Sphere (QVector3D(675, 400, -225), 150, QVector3D(255, 0, 0)));
-    //shapes.push_back(new Sphere (QVector3D(350, 400, -200), 150, QVector3D(255, 215, 0)));
-    //shapes.push_back(new Sphere (QVector3D(100, 100, -1000), 50, QVector3D(0, 0, 255)));
-    //shapes.push_back(new Sphere (QVector3D(600, 400, -300), 150, QVector3D(139, 0, 139)));
-
-    //shapes.push_back(new Plane (QVector3D(0, -1, 0), -100, QVector3D(0.4*256,0.3*256,0.3*256)));
-    //shapes.push_back(new Plane (QVector3D(0, 0, -1), -110, QVector3D(0,0,255)));
 
     //init lights
     lights.push_back(new Light(QVector3D(-150, 300, 100), QVector3D(1.0, 1.0, 1.0), 1.0));
