@@ -6,7 +6,7 @@
 #include "triangle.h"
 #include "plane.h"
 #include "light.h"
-//#include "camera.h"
+#include "camera.h"
 
 const unsigned short int sampleSize = 1;
 
@@ -19,97 +19,31 @@ RayTracer::RayTracer()
 
 }
 
-/*
+
 Camera RayTracer::initCamera()
 {
     //QVector3D origin (672, 468, 500);
-    QVector3D c (500, 700, 300);
-    //QVector3D c (500, 268, 200);
-    QVector3D gaze (0, -50, -100);
-    //QVector3D gaze (0, 0, -1);
+    QVector3D c (0, 0, 200);
+    QVector3D gaze (1, 1, -1);
     QVector3D vup (0, 1, 0);
-    const float left = 0.0;
-    const float right = 1344.0;
-    const float bottom = 936.0;
-    const float top = 0.0;
-    const float distance = 500.0;
+    //const float left = 0.0;
+    //const float right = 1344.0;
+    //const float bottom = 936.0;
+    //const float top = 0.0;
+    const float left = -300;
+    const float right = 300;
+    const float bottom = -225;
+    const float top = 225;
+    const float distance = 200.0;
     Camera camera = Camera(c, gaze, vup, left, right, bottom, top, distance);
     return camera;
 }
-*/
 
-/*
-bool RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shapes)
-{
-    //Camera camera = initCamera();    
-
-    bool is_a_hit;
-    bool sample_hit;
-    float tmax;
-    //QVector3D dir (0, 0, -1);
-
-    tmax = 100000.0f;
-    is_a_hit = false;
-
-    //initialize sampling values
-    float t = 0;
-    QVector3D normal (0, 0, 0);
-    QVector3D intersectionPoint (0, 0, 0);
-    QVector3D color (0, 0, 0);
-
-    //QVector3D origin (672, 468, 500);
-
-    QVector3D origin (0, 0, 1);
-
-    //add sampling
-    QVector2D samples[sampleSize*sampleSize];
-
-    jitter(samples, sampleSize);
-
-    for(int c = 0; c < sampleSize*sampleSize; c++){
-        sample_hit = false;
-        tmax = 100000.0f;
-        //QVector3D origin(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0);
-        QVector3D dir(QVector3D(i, j, 0) - origin);
-        dir.normalized();
-        //cout << "samples[c].x: " << i + samples[c].x() - 0.5 << endl;
-        //cout << "samples[c].y: " << j + samples[c].y() - 0.5 << endl;
-        Ray r(origin, dir);
-        //Ray r = camera.getRay(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0);
-        //Ray r = camera.getRay(i, j, 0);
-        //cout << "r.dir.x: " << r.direction().x() << endl;
-        //cout << "r.dir.y: " << r.direction().x() << endl;
-        //cout << "r.dir.z: " << r.direction().x() << endl;
-
-        for (int k = 0; k < (int)shapes.size(); k++)
-        {
-            if (shapes[k]->hit(r, .00001f, tmax, rec))
-            {
-                tmax = rec.t;
-                is_a_hit = true;
-                sample_hit = true;
-            }
-        }
-        t += rec.t;
-        normal += rec.normal;
-        intersectionPoint += rec.intersectionPoint;
-        if(sample_hit) color += rec.color;
-        else color += QVector3D(160,160,160);
-    }
-
-    rec.t = t/(sampleSize*sampleSize);
-    rec.normal = normal/(sampleSize*sampleSize);
-    rec.intersectionPoint = intersectionPoint/(sampleSize*sampleSize);
-    rec.color = color/(sampleSize*sampleSize);
-    rec.clamp();
-    rec.normal = rec.normal.normalized();
-
-    return is_a_hit;
-}
-*/
 
 QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> shapes, std::vector<Light*> lights)
 {
+    Camera camera = initCamera();
+
     bool is_a_hit;
     float tmax;
     Shape* closestShape;
@@ -139,19 +73,19 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
 
     //cout << "samples[c].x: " << i + samples[c].x() - 0.5 << endl;
     //cout << "samples[c].y: " << j + samples[c].y() - 0.5 << endl;
-    Ray r(origin, dir);
+    //Ray r(origin, dir);
 
     for(int c = 0; c < sampleSize*sampleSize; c++){
         sample_hit = false;
         tmax = 100000.0f;
-        //QVector3D origin(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0);
+        //QVector3D origin(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0);        
         QVector3D dir(QVector3D(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0) - origin);
         dir.normalized();
         //cout << "samples[c].x: " << i + samples[c].x() - 0.5 << endl;
         //cout << "samples[c].y: " << j + samples[c].y() - 0.5 << endl;
-        Ray r(origin, dir);
+        //Ray r(origin, dir);
         //Ray r = camera.getRay(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0);
-        //Ray r = camera.getRay(i, j, 0);
+        Ray r = camera.getRay(i, j);
         //cout << "r.dir.x: " << r.direction().x() << endl;
         //cout << "r.dir.y: " << r.direction().x() << endl;
         //cout << "r.dir.z: " << r.direction().x() << endl;
