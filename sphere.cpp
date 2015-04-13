@@ -32,11 +32,27 @@ bool Sphere::hit(const Ray &r, float tmin, float &tmax, HitRecord &record) const
         // we have a valid hit
         if(t<tmax){
             tmax = t;
+            record.t = t;
+            QVector3D intersectionPoint = r.origin() + t*r.direction();
+            //record.intersectionPoint = intersectionPoint.normalized();
+            record.intersectionPoint = intersectionPoint;
+            //QVector3D normal = r.origin() + t*r.direction() - center;
+            QVector3D normal = intersectionPoint - center;
+            record.normal = normal.normalized();
+            record.color = color;
+            //cout << "t: " << record.t << endl;
+            //cout << "normal: " <<  record.normal.x() << record.normal.y() << record.normal.z() << endl;
+            //cout << "intersectionPoint: " << record.intersectionPoint.x() << record.intersectionPoint.y() << record.intersectionPoint.z() << endl;
+            //cout << "color: " << record.color.x() << record.color.y() << record.color.z() << endl;
+            return true;
         }
+        /*
         record.t = t;
         QVector3D intersectionPoint = r.origin() + t*r.direction();
-        record.intersectionPoint = intersectionPoint.normalized();
-        QVector3D normal = r.origin() + t*r.direction() - center;
+        //record.intersectionPoint = intersectionPoint.normalized();
+        record.intersectionPoint = intersectionPoint;
+        //QVector3D normal = r.origin() + t*r.direction() - center;
+        QVector3D normal = intersectionPoint - center;
         record.normal = normal.normalized();
         record.color = color;
         //cout << "t: " << record.t << endl;
@@ -44,6 +60,7 @@ bool Sphere::hit(const Ray &r, float tmin, float &tmax, HitRecord &record) const
         //cout << "intersectionPoint: " << record.intersectionPoint.x() << record.intersectionPoint.y() << record.intersectionPoint.z() << endl;
         //cout << "color: " << record.color.x() << record.color.y() << record.color.z() << endl;
         return true;
+        */
     }
     return false;
 }
