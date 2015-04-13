@@ -23,13 +23,17 @@ RayTracer::RayTracer()
 Camera RayTracer::initCamera()
 {
     //QVector3D origin (672, 468, 500);
-    QVector3D c (0, 0, 200);
-    QVector3D gaze (1, 1, -1);
+    QVector3D c (500, 225, 200);
+    //QVector3D c (672, 468, 200);
+    //QVector3D c(400,-100,200);
+    QVector3D gaze (0, 0, -1);
+    //lefthand side
+    //QVector3D c (-400, 0, -225);
+    //QVector3D gaze (1, 1, 1);
+    //behind
+    //QVector3D c (-300, 150, -700);
+    //QVector3D gaze (0, 0, 1);
     QVector3D vup (0, 1, 0);
-    //const float left = 0.0;
-    //const float right = 1344.0;
-    //const float bottom = 936.0;
-    //const float top = 0.0;
     const float left = -300;
     const float right = 300;
     const float bottom = -225;
@@ -77,18 +81,12 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
 
     for(int c = 0; c < sampleSize*sampleSize; c++){
         sample_hit = false;
-        tmax = 100000.0f;
-        //QVector3D origin(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0);        
-        QVector3D dir(QVector3D(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0) - origin);
-        dir.normalized();
-        //cout << "samples[c].x: " << i + samples[c].x() - 0.5 << endl;
-        //cout << "samples[c].y: " << j + samples[c].y() - 0.5 << endl;
-        //Ray r(origin, dir);
-        //Ray r = camera.getRay(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0);
-        Ray r = camera.getRay(i, j);
-        //cout << "r.dir.x: " << r.direction().x() << endl;
-        //cout << "r.dir.y: " << r.direction().x() << endl;
-        //cout << "r.dir.z: " << r.direction().x() << endl;
+        tmax = 100000.0f;        
+        Ray r = camera.getRay(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5);
+
+        //QVector3D origin (0, 0, 500);
+        //QVector3D dir = QVector3D(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0) - origin;
+        //Ray r(origin, dir.normalized());
 
         //find closest intersection
         for (int k = 0; k < (int)shapes.size(); k++)
@@ -118,9 +116,6 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
 
     if (!is_a_hit) return backgroundColor;
 
-    float diffuseFactor;
-    float ambientCoefficient = 0.9;
-    float diffuseCoefficient = 0.9;
     float specularCoefficient = 0.5;
     int specPower = 50;
 
@@ -182,87 +177,11 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
         //add diffuse and specular components
         rec.color += specularColor;
 
-
-        /*
-        //specular shading
-        if(closestShape->GetMaterial()->GetSpecular() > 0.0f)
-        {
-            QVector3D V = r.direction();
-            QVector3D R = incidentLightRay - 2*QVector3D::dotProduct(incidentLightRay, rec.normal)*rec.normal;
-            //R = R.normalized();
-            float dotVR = QVector3D::dotProduct(V,R);
-            if(dotVR > 0.0f)
-            {
-                float spec = powf(dotVR, 20)*closestShape->GetMaterial()->GetSpecular()*shade;
-                rec.color += spec*lights[l]->color;
-            }
-        }
-
-        */
-
         //clamp
         rec.clamp();
      }
 
-    //trace lights
-    /*
-    for(int l = 0; l < (int)lights.size(); l++){
-        Light* light = lights[l];
-        QVector3D lightRay = (light->position - rec.intersectionPoint).normalized();
-        double lightRayLength = lightRay.length();
 
-        //calculate shadows
-        double shade = 1;
-
-        //NB - not normalized
-        QVector3D shadowDir = (light->position - rec.intersectionPoint);
-        float tdist = shadowDir.length();
-        Ray shadowRay(rec.intersectionPoint + shadowDir*(.00001f), shadowDir.normalized());
-
-        //check for obstructions
-        for(int o = 0; o < (int)shapes.size(); o++)
-        {
-            if (shapes[o]->hit(shadowRay, .00001f, tdist, srec))
-            {
-                shade = 0;
-                break;
-            }
-        }
-
-
-        //diffuse shading
-        if(closestShape->GetMaterial()->GetDiffuse() > 0.0f)
-        {
-            float dotLN = QVector3D::dotProduct(lightRay, rec.normal);
-            if (dotLN > 0)
-            {
-                float diff = dotLN*closestShape->GetMaterial()->GetDiffuse()*shade;
-                color = diff*rec.color*light->color;
-            }
-        }
-
-        //specular shading
-        if(closestShape->GetMaterial()->GetSpecular() > 0.0f)
-        {
-            QVector3D V = r.direction();
-            QVector3D R = lightRay - 2*QVector3D::dotProduct(lightRay, rec.normal)*rec.normal;
-            float dotVR = QVector3D::dotProduct(V,R);
-            if(dotVR > 0)
-            {
-                float spec = powf(dotVR, 20)*closestShape->GetMaterial()->GetSpecular()*shade;
-                color += spec*light->color;
-            }
-        }        
-    }    
-
-    //clamp
-    if(color.x() < 0) color.setX(0);
-    if(color.y() < 0) color.setY(0);
-    if(color.z() < 0) color.setZ(0);
-    if(color.x() > 255) color.setX(255);
-    if(color.y() > 255) color.setY(255);
-    if(color.z() > 255) color.setZ(255);
-    */
 
     color = rec.color;
 
@@ -286,19 +205,14 @@ void RayTracer::jitter(QVector2D* samples, int sampleSize)
 
 void RayTracer::initRender(int renderWidth, int renderHeight)
 {
-    //TODO: Hardcoded - fix later
-    //m_Width = 1200;
-    //m_Height = 900;
 
     //set up image plane - 8 wide by 6 high
     //m_leftX = -4, m_rightX = 4, m_topY = 3, m_bottomY = -3;
     //m_leftX = -600, m_rightX = 600, m_topY = 450, m_bottomY = -450;
     m_leftX = -300, m_rightX = 300, m_topY = 225, m_bottomY = -225;
     //calculate deltas
-    m_dX = (m_rightX - m_leftX)/renderWidth;
-    //std::cout << "dX: " << m_dX << endl;
-    m_dY = (m_topY - m_bottomY)/renderHeight;
-    //std::cout << "dY: " << m_dY << endl;
+    m_dX = (m_rightX - m_leftX)/renderWidth;    
+    m_dY = (m_topY - m_bottomY)/renderHeight;   
     //start at top left corner
     m_targetY = m_topY;
     m_targetX = m_leftX;
@@ -355,123 +269,7 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     }
 }
 
-/*
-void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
-{
-    HitRecord rec;
-    QVector3D incidentLightRay;
-    QVector3D surfaceNormal;
 
-    //geometry
-    std::vector<Shape*> shapes;
-    std::vector<Light*> lights;
-
-    //init shapes
-    shapes.push_back(new Sphere (QVector3D(0, 0, -5), 1.0, QVector3D(255, 255, 0)));
-    //shapes.push_back(new Sphere (QVector3D(350, 400, -200), 150, QVector3D(255, 215, 0)));
-    //shapes.push_back(new Sphere (QVector3D(675, 400, -225), 150, QVector3D(255, 0, 0)));
-    //shapes.push_back(new Sphere (QVector3D(350, 400, -200), 150, QVector3D(255, 215, 0)));
-    //shapes.push_back(new Sphere (QVector3D(100, 100, -1000), 50, QVector3D(0, 0, 255)));
-    //shapes.push_back(new Sphere (QVector3D(600, 400, -300), 150, QVector3D(139, 0, 139)));
-
-    //shapes.push_back(new Plane (QVector3D(0, 1, 0), 0, QVector3D(255,0,0)));
-
-    //init lights
-    lights.push_back(new Light(QVector3D(150,150,300), QVector3D(255,255,255), 1.0));
-
-    QVector3D lightPosition (150, 150, 300);
-    //QVector3D lightPosition (0, -150, 300);
-    //QVector3D lightPosition (50, 0, 300);
-    //QVector3D lightPosition (2000, 450, -100);
-
-    float diffuseFactor;
-    float ambientCoefficient = 1.0;
-    float diffuseCoefficient = 0.9;
-    float specularCoefficient = 0.9;
-    int specPower = 50;
-
-    float tmax = 100000.0f;
-
-    for (int i = 0; i < renderWidth; i++)
-    {
-        m_targetX = m_leftX;
-        for (int j = 0; j < renderHeight; j++)
-        {
-            //if (rayTrace(rec, i, j, shapes))
-            if (rayTrace(rec, m_targetX, m_targetY, shapes))
-            {
-                //add ambient component
-                //rec.color *= ambientCoefficient;
-                //rec.clamp();
-
-
-                HitRecord srec;
-                //int counter = 0;
-                bool is_ambient_hit = false;
-                QVector3D p = rec.intersectionPoint;
-                QVector3D dir = (lightPosition - p).normalized();
-                Ray r(p, dir);
-
-                for (int k = 0; k < (int)shapes.size(); k++)
-                {
-                    if (shapes[k]->hit(r, .00001f, tmax, srec))
-                    {
-                        tmax = srec.t;
-                        is_ambient_hit = true;
-                        //counter++;
-                        //cout << "counter: " << counter;
-                    }
-                }
-
-                if (!is_ambient_hit)
-                {
-                    //add diffuse component
-                    incidentLightRay = (rec.intersectionPoint - lightPosition).normalized();
-                    surfaceNormal = rec.normal;
-                    diffuseFactor = surfaceNormal.dotProduct(incidentLightRay, surfaceNormal);
-                    diffuseFactor *= (-1);
-                    rec.color = (diffuseFactor*diffuseCoefficient)*rec.color;
-
-                    //clamp
-                    rec.clamp();
-
-                    //add specular component
-                    float myDot = - incidentLightRay.dotProduct(incidentLightRay, surfaceNormal);
-                    float myLen = 2.0f * myDot;
-
-                    QVector3D tempNormal = myLen * surfaceNormal;
-                    QVector3D reflectVector = (tempNormal + incidentLightRay).normalized();
-
-                    float mySpec = 0.0;
-                    float tempDot = - reflectVector.dotProduct(reflectVector, incidentLightRay);
-                    if (tempDot > 0.0) mySpec = tempDot;
-
-                    mySpec = powf(mySpec, specPower);
-
-                    QVector3D specularColor (255, 255, 255);
-                    specularColor = (mySpec*specularCoefficient) * specularColor;
-
-                    //add diffuse and specular components
-                    rec.color += specularColor;
-
-                    //clamp
-                    rec.clamp();                   
-                }
-
-                //myimage.setPixel(i, j, qRgb(rec.color.x(), rec.color.y(), rec.color.z()));
-                myimage.setPixel(i, renderHeight -1 - j, qRgb(rec.color.x(), rec.color.y(), rec.color.z()));
-            }
-            else
-            {
-                //myimage.setPixel(i, j, qRgb(160,160,160));
-                myimage.setPixel(i, renderHeight- 1 - j, qRgb(160,160,160));
-            }
-            m_targetX += m_dX;
-        }
-        m_targetY -= m_dY;
-    }
-}
-*/
 
 
 RayTracer::~RayTracer()
