@@ -82,11 +82,11 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
     for(int c = 0; c < sampleSize*sampleSize; c++){
         sample_hit = false;
         tmax = 100000.0f;        
-        Ray r = camera.getRay(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5);
+        //Ray r = camera.getRay(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5);
 
-        //QVector3D origin (0, 0, 500);
-        //QVector3D dir = QVector3D(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0) - origin;
-        //Ray r(origin, dir.normalized());
+        QVector3D origin (0, 0, 500);
+        QVector3D dir = QVector3D(i + samples[c].x() - 0.5, j + samples[c].y() - 0.5, 0) - origin;
+        Ray r(origin, dir.normalized());
 
         //find closest intersection
         for (int k = 0; k < (int)shapes.size(); k++)
@@ -128,7 +128,7 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
         //calculate shadows
         float shade = 1.0f;
 
-        /*
+
         //NB - not normalized
         QVector3D shadowDir = (lights[l]->position - rec.intersectionPoint);
         float tdist = shadowDir.length();
@@ -143,7 +143,7 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
                 break;
             }
         }
-        */
+
 
 
         //diffuse shading
@@ -176,6 +176,33 @@ QVector3D RayTracer::rayTrace(HitRecord &rec, int i, int j, std::vector<Shape*> 
 
         //add diffuse and specular components
         rec.color += specularColor;
+
+        /*
+         * calculate reflection
+            if((current_depth < depth) && (closestShape.getMat()->getReflectionAmount() > 0.0f)){
+            QVector3D Reflected_Vector = r.direction() - 2 * QVector3D::dotProduct(r.direction(), surfaceNormal) * surfaceNormal;
+            QVector3D Reflected_Color = raytrace(Ray(intersectionPoint + Reflected_Vector * 0.000001f, Reflected_Vector), current_depth + 1);
+            rec.color += Reflected_Color * closestShape.getMat()->getReflectionAmount();
+        }
+         *
+        */
+
+        /*
+         * calculate refraction
+            if((current_depth < depth) && (closestShape.getMat()->getTransparency() == true)){
+            QVector3D Refracted_Vector;
+            double n = closestShape.getMat()->getIoR();
+            double cosI = QVector3D::dotProduct(surfaceNormal, r.direction());
+            double sinT2 = n*n * (1.0 - cosI*cosI);
+            if(sinT2 <= 1.0)
+            {
+                Refracted_Vector = n * r.direction() - (n + sqrtf(1.0 - sinT2)) * surfaceNormal;
+                QVector3D Refracted_Color = raytrace(Ray(intersectionPoint + Refracted_Vector * 0.000001f, Refracted_Vector), current_depth + 1);
+                rec.color = Refracted_Color;
+            }
+        }
+         */
+
 
         //clamp
         rec.clamp();
@@ -234,7 +261,7 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     sphere1->GetMaterial()->SetRefrIndex(1.3f);
     sphere1->GetMaterial()->SetSpecular(0.9f);
 
-    Sphere *sphere2 = new Sphere (QVector3D(200, 0, -250), 100, QVector3D(255, 215, 0));
+    Sphere *sphere2 = new Sphere (QVector3D(-70, 50, -50), 20, QVector3D(255, 215, 0));
     sphere2->GetMaterial()->SetReflection(0.9f);
     sphere2->GetMaterial()->SetRefraction(0.0f);
     sphere2->GetMaterial()->SetRefrIndex(1.3f);
@@ -253,7 +280,8 @@ void RayTracer::render(QImage &myimage, int renderWidth, int renderHeight)
     shapes.push_back(plane1);
 
     //init lights
-    lights.push_back(new Light(QVector3D(-150, 300, 100), QVector3D(1.0, 1.0, 1.0), 1.0));
+    //lights.push_back(new Light(QVector3D(-150, 300, 100), QVector3D(1.0, 1.0, 1.0), 1.0));
+    lights.push_back(new Light(QVector3D(-140, 100, 100), QVector3D(1.0, 1.0, 1.0), 2.0));
     //lights.push_back(new Light(QVector3D(100, 100, 300), QVector3D(1.0, 1.0, 1.0), 1.5));
 
     for (int j = 0; j < renderHeight; j++)
